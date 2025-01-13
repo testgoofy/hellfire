@@ -1,4 +1,5 @@
 {
+  "name": "hellfire",
   "devDependencies": {
     "@rollup/plugin-typescript": "^12.1.2",
     "@types/screeps": "^3.3.8",
