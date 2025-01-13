@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "incremental": true,                                 /* Save .tsbuildinfo files to allow for incremental compilation of projects. */
+    "tsBuildInfoFile": "./.tsbuildinfo",                 /* Specify the path to .tsbuildinfo incremental compilation file. */
+    "target": "es2022",                                  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "module": "es2022",                                  /* Specify what module code is generated. */
+    "rootDir": "./src",                                  /* Specify the root folder within your source files. */
+    "moduleResolution": "node10",                        /* Specify how TypeScript looks up a file from a given module specifier. */
+    "types": [                                           /* Specify type package names to be included without being referenced in a source file. */
+      "@types/screeps",
+    ],
+    "outDir": "./compiled",                              /* Specify an output folder for all emitted files. */
+    "removeComments": true,                              /* Disable emitting comments. */
+    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables 'allowSyntheticDefaultImports' for type compatibility. */
+    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
+    "strict": true,                                      /* Enable all strict type-checking options. */
+  }
+}
