@@ -145,3 +145,6 @@ dist
 
 # Compiled Output dir
 output/
+
+# Rollup bundler
+.rollup.cache/
