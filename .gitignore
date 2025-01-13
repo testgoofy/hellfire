@@ -148,3 +148,6 @@ output/
 
 # Rollup bundler
 .rollup.cache/
+
+# Minified output
+hellfire.min.js
