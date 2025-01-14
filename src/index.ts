@@ -9,89 +9,73 @@ export function loop() {
   }
 
   // Spawning
-  let harvesters = _.filter(
-    Game.creeps,
-    (creep: Creep) => creep.memory['role'] == 'harvester'
-  );
-
-  let upgraders = _.filter(
-    Game.creeps,
-    (creep: Creep) => creep.memory['role'] == 'upgrader'
-  );
-
-  if (harvesters.length < 3) {
-    let name = 'Harvester' + Game.time;
-    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], name, {
-      memory: {role: 'harvester'},
-    });
-  }
-
-  if (upgraders.length < 1) {
-    let name = 'Upgrader' + Game.time;
-    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], name, {
-      memory: {role: 'upgrader'},
-    });
+  if (Object.keys(Game.creeps).length < 3) {
+    let name = 'Universal' + Game.time;
+    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], name);
   }
 
   if (Game.spawns['Spawn1'].spawning) {
     let creep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
     Game.spawns['Spawn1'].room.visual.text(
-      '🛠️' + creep.memory['role'],
-      creep.pos.x + 1,
-      creep.pos.y,
-      {align: 'left', opacity: 0.8}
+      '🛠️' + creep.name,
+      creep.pos.x,
+      creep.pos.y + 1,
+      {align: 'center', opacity: 0.8}
     );
   }
 
+  let request = Game.spawns['Spawn1'].store.getFreeCapacity(RESOURCE_ENERGY);
+  RESOURCE_ENERGY;
   // Commanding creeps
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
-    if (creep.memory['role'] == 'harvester') {
-      // Harvester
-      if (creep.store.getFreeCapacity() > 0) {
-        let sources = creep.room.find(FIND_SOURCES);
-        if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#ffaa00'}});
-        }
-      } else {
-        // Creep is fully loaded
-        let targets = creep.room.find(FIND_STRUCTURES, {
-          filter: (structure) => {
-            return (
-              structure.structureType == STRUCTURE_EXTENSION ||
-              structure.structureType == STRUCTURE_SPAWN
-            );
-          },
-        });
-        if (targets.length > 0) {
-          if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
+
+    if (creep.memory['busy'] == undefined) {
+      creep.memory['busy'] = false;
+    }
+
+    if (creep.memory['busy'] && creep.store[RESOURCE_ENERGY] == 0) {
+      // Creep wants to work, but has not enough energy
+      creep.memory['busy'] = false;
+      creep.say('🔄 harvest');
+    } else if (
+      !creep.memory['busy'] &&
+      creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0
+    ) {
+      // Creep wants to harvest, but has no more free capacity
+      creep.memory['busy'] = true;
+      creep.say('⚡ working');
+    }
+
+    if (!creep.memory['busy']) {
+      // Mode 1: Harvesting
+      let source = creep.room.find(FIND_SOURCES)[0];
+      if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
+      }
+    } else {
+      // creep.memory['busy'] == false
+      // Mode 2: Working
+      if (request > 0) {
+        // Spawn needs energy
+        // Mode 2a: Hauling
+        request -= creep.store[RESOURCE_ENERGY];
+        let target = creep.room.find(FIND_MY_SPAWNS)[0];
+        if (target) {
+          if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
           }
         }
-      }
-    } else if (creep.memory['role'] == 'upgrader') {
-      // Upgrader
-      if (creep.memory.upgrading && creep.store[RESOURCE_ENERGY] == 0) {
-        creep.memory.upgrading = false;
-        creep.say('🔄 harvest');
-      }
-      if (!creep.memory.upgrading && creep.store.getFreeCapacity() == 0) {
-        creep.memory.upgrading = true;
-        creep.say('⚡ upgrade');
-      }
-      if (creep.memory.upgrading) {
-        let controller = creep.room.controller;
-        if (controller == undefined) {
-          console.log('No controller in room ' + creep.room.name);
-        } else if (creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(controller, {
-            visualizePathStyle: {stroke: '#ffffff'},
-          });
-        }
       } else {
-        var sources = creep.room.find(FIND_SOURCES);
-        if (creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#ffaa00'}});
+        // Spawn does not need energy
+        // Mode 2b: Upgrading
+        let controller = creep.room.controller;
+        if (controller) {
+          if (creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(controller, {
+              visualizePathStyle: {stroke: '#ffffff'},
+            });
+          }
         }
       }
     }
