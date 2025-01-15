@@ -1,5 +1,6 @@
 var _ = require('lodash');
 import Hauling from './tasks/hauling';
+import TaskManager from './tasks/taskManager';
 import Upgrading from './tasks/upgrading';
 
 export function loop() {
@@ -34,13 +35,24 @@ export function loop() {
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
 
-    if (request > 0) {
-      request -= creep.store.getUsedCapacity(RESOURCE_ENERGY);
-      let task = new Hauling(creep, source, spawn);
-      task.run();
-    } else {
-      let task = new Upgrading(creep, source, controller);
-      task.run();
+    let task = TaskManager.getTask(creep);
+    if (task == null) {
+      // Creep has no assigned task
+      // Assign new task
+      if (request > 0) {
+        request -= creep.store.getUsedCapacity(RESOURCE_ENERGY);
+        task = new Hauling(creep, source, spawn);
+      } else {
+        task = new Upgrading(creep, source, controller);
+      }
+    }
+
+    // Execute task
+    task.run();
+
+    // Persist task, if not finished
+    if (task.active()) {
+      task.persist();
     }
   }
 

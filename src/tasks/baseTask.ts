@@ -1,4 +1,6 @@
 export default abstract class BaseTask {
+  protected abstract taskName: string;
+
   constructor(
     public creep: Creep,
     public source: Source,
@@ -10,6 +12,27 @@ export default abstract class BaseTask {
     }
   }
 
+  public active() {
+    return this.creep.memory['busy'] != undefined;
+  }
+
+  /**
+   * Completes the current task by clearing the creep's memory of its busy state
+   * and task information, indicating it is no longer assigned to any task.
+   */
+  protected complete() {
+    delete this.creep.memory['busy'];
+    delete this.creep.memory['task'];
+  }
+
+  public persist() {
+    this.creep.memory['task'] = {
+      task: this.taskName,
+      source: this.source.id,
+      sink: this.sink.id,
+    };
+  }
+
   public run() {
     this.update();
 
@@ -17,10 +40,13 @@ export default abstract class BaseTask {
       this.work();
     } else {
       // Harvesting
-      if (this.creep.harvest(this.source) == ERR_NOT_IN_RANGE) {
+      let returnCode = this.creep.harvest(this.source);
+      if (returnCode == ERR_NOT_IN_RANGE) {
         this.creep.moveTo(this.source, {
           visualizePathStyle: {stroke: '##ffaa00'},
         });
+      } else if (returnCode == OK) {
+        this.complete();
       }
     }
   }
@@ -38,8 +64,9 @@ export default abstract class BaseTask {
    */
   private update() {
     if (this.creep.memory['busy'] && this.creep.store[RESOURCE_ENERGY] == 0) {
-      // Creep wants to work, but has not enough energy
-      this.creep.memory['busy'] = false;
+      // Creep is in the working state, but has no more energy
+      // Creeps has successfully completed the task
+      this.complete();
     } else if (
       !this.creep.memory['busy'] &&
       this.creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0
