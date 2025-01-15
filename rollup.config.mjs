@@ -1,10 +1,11 @@
+import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
 
 export default {
   input: 'src/index.ts',
   output: {
     dir: 'output',
-    format: 'cjs'
+    format: 'cjs',
   },
-  plugins: [typescript()]
+  plugins: [typescript(), terser()],
 };
