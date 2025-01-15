@@ -80,4 +80,7 @@ export function loop() {
       }
     }
   }
+
+  // Try generating a pixel
+  Game.cpu.generatePixel();
 }
