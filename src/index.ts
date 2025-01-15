@@ -1,4 +1,6 @@
 var _ = require('lodash');
+import Hauling from './tasks/hauling';
+import Upgrading from './tasks/upgrading';
 
 export function loop() {
   // Memory Maintenance
@@ -25,59 +27,20 @@ export function loop() {
   }
 
   let request = Game.spawns['Spawn1'].store.getFreeCapacity(RESOURCE_ENERGY);
-  RESOURCE_ENERGY;
+  let spawn = Game.spawns['Spawn1'];
+  let controller = spawn.room.controller as StructureController;
+  let source = spawn.room.find(FIND_SOURCES_ACTIVE)[0];
   // Commanding creeps
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
 
-    if (creep.memory['busy'] == undefined) {
-      creep.memory['busy'] = false;
-    }
-
-    if (creep.memory['busy'] && creep.store[RESOURCE_ENERGY] == 0) {
-      // Creep wants to work, but has not enough energy
-      creep.memory['busy'] = false;
-      creep.say('🔄 harvest');
-    } else if (
-      !creep.memory['busy'] &&
-      creep.store.getFreeCapacity(RESOURCE_ENERGY) == 0
-    ) {
-      // Creep wants to harvest, but has no more free capacity
-      creep.memory['busy'] = true;
-      creep.say('⚡ working');
-    }
-
-    if (!creep.memory['busy']) {
-      // Mode 1: Harvesting
-      let source = creep.room.find(FIND_SOURCES)[0];
-      if (creep.harvest(source) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00'}});
-      }
+    if (request > 0) {
+      request -= creep.store.getUsedCapacity(RESOURCE_ENERGY);
+      let task = new Hauling(creep, source, spawn);
+      task.run();
     } else {
-      // creep.memory['busy'] == false
-      // Mode 2: Working
-      if (request > 0) {
-        // Spawn needs energy
-        // Mode 2a: Hauling
-        request -= creep.store[RESOURCE_ENERGY];
-        let target = creep.room.find(FIND_MY_SPAWNS)[0];
-        if (target) {
-          if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffffff'}});
-          }
-        }
-      } else {
-        // Spawn does not need energy
-        // Mode 2b: Upgrading
-        let controller = creep.room.controller;
-        if (controller) {
-          if (creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(controller, {
-              visualizePathStyle: {stroke: '#ffffff'},
-            });
-          }
-        }
-      }
+      let task = new Upgrading(creep, source, controller);
+      task.run();
     }
   }
 
