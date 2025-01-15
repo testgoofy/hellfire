@@ -82,5 +82,7 @@ export function loop() {
   }
 
   // Try generating a pixel
-  Game.cpu.generatePixel();
+  if (Game.cpu.bucket >= 10_000) {
+    Game.cpu.generatePixel();
+  }
 }
