@@ -38,7 +38,7 @@ export function loop() {
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
 
-    let task = TaskManager.getTask(creep);
+    let task = TaskManager.restoreTask(creep);
     if (task == null) {
       // Creep has no assigned task
       // Assign new task
