@@ -1,4 +1,5 @@
 var _ = require('lodash');
+import Building from './tasks/building';
 import Hauling from './tasks/hauling';
 import TaskManager from './tasks/taskManager';
 import Upgrading from './tasks/upgrading';
@@ -30,7 +31,9 @@ export function loop() {
   let request = Game.spawns['Spawn1'].store.getFreeCapacity(RESOURCE_ENERGY);
   let spawn = Game.spawns['Spawn1'];
   let controller = spawn.room.controller as StructureController;
+  let constructions = spawn.room.find(FIND_MY_CONSTRUCTION_SITES);
   let source = spawn.room.find(FIND_SOURCES_ACTIVE)[0];
+
   // Commanding creeps
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
@@ -42,6 +45,10 @@ export function loop() {
       if (request > 0) {
         request -= creep.store.getUsedCapacity(RESOURCE_ENERGY);
         task = new Hauling(creep, source, spawn);
+      } else if (constructions.length > 0) {
+        let construction = constructions[0];
+        constructions.shift();
+        task = new Building(creep, source, construction);
       } else {
         task = new Upgrading(creep, source, controller);
       }

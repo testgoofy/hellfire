@@ -1,11 +1,7 @@
 export default abstract class BaseTask {
   protected abstract taskName: string;
 
-  constructor(
-    public creep: Creep,
-    public source: Source,
-    public sink: StructureSpawn | StructureController
-  ) {
+  constructor(public creep: Creep, public source: Source, public sink: any) {
     if (creep.memory['busy'] == undefined) {
       creep.memory['busy'] = false; // Default to gathering resources
       this.update();
