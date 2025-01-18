@@ -28,33 +28,11 @@ export function loop() {
     );
   }
 
-  let request = Game.spawns['Spawn1'].store.getFreeCapacity(RESOURCE_ENERGY);
-  let spawn = Game.spawns['Spawn1'];
-  let controller = spawn.room.controller as StructureController;
-  let constructions = spawn.room.find(FIND_MY_CONSTRUCTION_SITES);
-  let source = spawn.room.find(FIND_SOURCES_ACTIVE)[0];
-
   // Commanding creeps
   for (let name in Game.creeps) {
     let creep = Game.creeps[name];
 
-    let task = TaskManager.restoreTask(creep);
-    if (task == null) {
-      // Creep has no assigned task
-      // Assign new task
-      if (request > 0) {
-        request -= creep.store.getUsedCapacity(RESOURCE_ENERGY);
-        task = new Hauling(creep, source, spawn);
-      } else if (constructions.length > 0) {
-        let construction = constructions[0];
-        constructions.shift();
-        task = new Building(creep, source, construction);
-      } else {
-        task = new Upgrading(creep, source, controller);
-      }
-    }
-
-    // Execute task
+    let task = TaskManager.assignTask(creep);
     task.run();
 
     // Persist task, if not finished
