@@ -99,7 +99,7 @@ export default class Logger {
           ' | ' +
           String(Game.time).padStart(7) +
           ' | ' +
-          creep.name +
+          creep.name.padEnd(17) +
           ' | ' +
           message
       );
