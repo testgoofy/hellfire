@@ -1,5 +1,5 @@
 var _ = require('lodash');
-import TaskManager from './tasks/taskManager';
+import TaskManager from './managers/taskManager';
 
 export function loop() {
   // Memory Maintenance

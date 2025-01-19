@@ -1,8 +1,8 @@
 var _ = require('lodash');
-import BaseTask from './baseTask';
-import Hauling from './hauling';
-import Building from './building';
-import Upgrading from './upgrading';
+import BaseTask from '../tasks/baseTask';
+import Hauling from '../tasks/hauling';
+import Building from '../tasks/building';
+import Upgrading from '../tasks/upgrading';
 
 export default class TaskManager {
   /**
