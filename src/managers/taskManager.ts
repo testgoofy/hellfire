@@ -57,7 +57,7 @@ export default class TaskManager {
       } else {
         task = new Upgrading(creep, source, controller);
       }
-      this.logger.info(`Assign task ${task.taskName}`, creep);
+      this.logger.debug(`Assign task ${task.taskName}`, creep);
     } else {
       this.logger.trace(`Restore task ${task.taskName}`, creep);
     }
