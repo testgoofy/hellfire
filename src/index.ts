@@ -1,8 +1,5 @@
 var _ = require('lodash');
-import Building from './tasks/building';
-import Hauling from './tasks/hauling';
 import TaskManager from './tasks/taskManager';
-import Upgrading from './tasks/upgrading';
 
 export function loop() {
   // Memory Maintenance
@@ -29,17 +26,7 @@ export function loop() {
   }
 
   // Commanding creeps
-  for (let name in Game.creeps) {
-    let creep = Game.creeps[name];
-
-    let task = TaskManager.assignTask(creep);
-    task.run();
-
-    // Persist task, if not finished
-    if (task.active()) {
-      task.persist();
-    }
-  }
+  TaskManager.run();
 
   // Try generating a pixel
   if (Game.cpu.bucket >= 10_000) {

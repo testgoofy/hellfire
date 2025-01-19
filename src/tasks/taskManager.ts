@@ -1,3 +1,4 @@
+var _ = require('lodash');
 import BaseTask from './baseTask';
 import Hauling from './hauling';
 import Building from './building';
@@ -74,6 +75,49 @@ export default class TaskManager {
         );
       default:
         return null;
+    }
+  }
+
+  /**
+   * Executes the task assignment and execution process for all creeps.
+   *
+   * This method filters all creeps into busy and idle categories based on their
+   * memory task state. For busy creeps, it reassigns and executes their tasks,
+   * ensuring the task is persisted if not completed. For idle creeps, it assigns
+   * them new tasks based on current priorities and executes them, persisting if
+   * the task is still active.
+   */
+
+  public static run() {
+    let busyCreeps = _.filter(
+      Game.creeps,
+      (creep: Creep) => creep.memory['task'] != undefined
+    );
+    if (busyCreeps.length > 0) {
+      for (let creep of busyCreeps) {
+        let task = TaskManager.assignTask(creep);
+        task.run();
+
+        // Persist task, if not finished
+        if (task.active()) {
+          task.persist();
+        }
+      }
+    }
+    let idleCreeps = _.filter(
+      Game.creeps,
+      (creep: Creep) => creep.memory['task'] == undefined
+    );
+    if (idleCreeps.length > 0) {
+      for (let creep of idleCreeps) {
+        let task = TaskManager.assignTask(creep);
+        task.run();
+
+        // Persist task, if not finished
+        if (task.active()) {
+          task.persist();
+        }
+      }
     }
   }
 }
