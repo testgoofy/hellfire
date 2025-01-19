@@ -1,7 +1,8 @@
 import BaseTask from './baseTask';
 
 export default class Upgrading extends BaseTask {
-  protected taskName = 'Upgrading';
+  public taskName = 'Upgrading';
+
   protected work() {
     let returnCode = this.creep.upgradeController(
       this.sink as StructureController

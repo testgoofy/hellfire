@@ -1,7 +1,7 @@
 import BaseTask from './baseTask';
 
 export default class Hauling extends BaseTask {
-  protected taskName = 'Hauling';
+  public taskName = 'Hauling';
 
   protected work() {
     let returnCode = this.creep.transfer(this.sink, RESOURCE_ENERGY);

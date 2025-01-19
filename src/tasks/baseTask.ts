@@ -1,5 +1,8 @@
+import Logger from '../logger';
+
 export default abstract class BaseTask {
-  protected abstract taskName: string;
+  protected logger = Logger.getInstance();
+  public abstract taskName: string;
 
   constructor(public creep: Creep, public source: Source, public sink: any) {
     if (creep.memory['busy'] == undefined) {
@@ -17,6 +20,7 @@ export default abstract class BaseTask {
    * and task information, indicating it is no longer assigned to any task.
    */
   protected complete() {
+    this.logger.debug(`Completed task ${this.taskName}`, this.creep);
     delete this.creep.memory['busy'];
     delete this.creep.memory['task'];
   }

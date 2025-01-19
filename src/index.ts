@@ -1,7 +1,11 @@
 var _ = require('lodash');
+import Logger from './logger';
 import TaskManager from './managers/taskManager';
 
 export function loop() {
+  let logger = Logger.getInstance();
+  logger.setLevel(Logger.DEBUG);
+
   // Memory Maintenance
   for (let creep in Memory.creeps) {
     if (!Game.creeps[creep]) {

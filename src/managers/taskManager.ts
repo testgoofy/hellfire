@@ -4,12 +4,14 @@ import ConstructionManager from './constructionManager';
 import Hauling from '../tasks/hauling';
 import Building from '../tasks/building';
 import Upgrading from '../tasks/upgrading';
+import Logger from '../logger';
 
 export default class TaskManager {
   private static instance: TaskManager;
 
   private room: Room;
   private constructionManager: ConstructionManager;
+  private logger: Logger;
 
   public static getInstance(room: Room): TaskManager {
     if (!TaskManager.instance) {
@@ -22,6 +24,7 @@ export default class TaskManager {
   private constructor(room: Room) {
     this.room = room;
     this.constructionManager = ConstructionManager.getInstance(room);
+    this.logger = Logger.getInstance();
   }
 
   /**
@@ -54,6 +57,9 @@ export default class TaskManager {
       } else {
         task = new Upgrading(creep, source, controller);
       }
+      this.logger.info(`Assign task ${task.taskName}`, creep);
+    } else {
+      this.logger.trace(`Restore task ${task.taskName}`, creep);
     }
 
     return task;
@@ -84,6 +90,8 @@ export default class TaskManager {
             Game.getObjectById(task.source) as Source,
             Game.getObjectById(task.sink)
           );
+        } else {
+          this.logger.warn('Construction not found for building task', creep);
         }
         return null;
       case 'Upgrading':

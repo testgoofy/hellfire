@@ -1,7 +1,7 @@
 import BaseTask from './baseTask';
 
 export default class Building extends BaseTask {
-  protected taskName = 'Building';
+  public taskName = 'Building';
 
   protected work() {
     let returnCode = this.creep.build(this.sink);
