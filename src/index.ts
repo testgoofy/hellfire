@@ -26,7 +26,8 @@ export function loop() {
   }
 
   // Commanding creeps
-  TaskManager.run();
+  let taskManager = TaskManager.getInstance(Game.spawns['Spawn1'].room);
+  taskManager.run();
 
   // Try generating a pixel
   if (Game.cpu.bucket >= 10_000) {

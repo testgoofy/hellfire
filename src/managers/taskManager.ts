@@ -1,10 +1,29 @@
 var _ = require('lodash');
 import BaseTask from '../tasks/baseTask';
+import ConstructionManager from './constructionManager';
 import Hauling from '../tasks/hauling';
 import Building from '../tasks/building';
 import Upgrading from '../tasks/upgrading';
 
 export default class TaskManager {
+  private static instance: TaskManager;
+
+  private room: Room;
+  private constructionManager: ConstructionManager;
+
+  public static getInstance(room: Room): TaskManager {
+    if (!TaskManager.instance) {
+      TaskManager.instance = new TaskManager(room);
+    }
+
+    return TaskManager.instance;
+  }
+
+  private constructor(room: Room) {
+    this.room = room;
+    this.constructionManager = ConstructionManager.getInstance(room);
+  }
+
   /**
    * Assign tasks to a creep. If the creep is idle, a new task is assigned.
    * The task is determined by the following rules:
@@ -15,14 +34,14 @@ export default class TaskManager {
    * @param creep The creep to assign the task to
    * @returns The assigned task
    */
-  public static assignTask(creep: Creep): BaseTask {
+  private assignTask(creep: Creep): BaseTask {
     let request = Game.spawns['Spawn1'].store.getFreeCapacity(RESOURCE_ENERGY);
     let spawn = Game.spawns['Spawn1'];
     let controller = spawn.room.controller as StructureController;
     let constructions = spawn.room.find(FIND_MY_CONSTRUCTION_SITES);
     let source = spawn.room.find(FIND_SOURCES_ACTIVE)[0];
 
-    let task = TaskManager.restoreTask(creep);
+    let task = this.restoreTask(creep);
     if (task == null) {
       // Creep is currently not working on a task
       if (request > 0) {
@@ -45,7 +64,7 @@ export default class TaskManager {
    * @param creep The creep to restore the task from
    * @returns The restored task or null if the task could not be restored
    */
-  public static restoreTask(creep: Creep): BaseTask | null {
+  private restoreTask(creep: Creep): BaseTask | null {
     let task = creep.memory['task'];
     if (task == undefined) {
       return null;
@@ -88,14 +107,14 @@ export default class TaskManager {
    * the task is still active.
    */
 
-  public static run() {
+  public run() {
     let busyCreeps = _.filter(
       Game.creeps,
       (creep: Creep) => creep.memory['task'] != undefined
     );
     if (busyCreeps.length > 0) {
       for (let creep of busyCreeps) {
-        let task = TaskManager.assignTask(creep);
+        let task = this.assignTask(creep);
         task.run();
 
         // Persist task, if not finished
@@ -110,7 +129,7 @@ export default class TaskManager {
     );
     if (idleCreeps.length > 0) {
       for (let creep of idleCreeps) {
-        let task = TaskManager.assignTask(creep);
+        let task = this.assignTask(creep);
         task.run();
 
         // Persist task, if not finished
