@@ -41,7 +41,6 @@ export default class TaskManager {
     let request = Game.spawns['Spawn1'].store.getFreeCapacity(RESOURCE_ENERGY);
     let spawn = Game.spawns['Spawn1'];
     let controller = spawn.room.controller as StructureController;
-    let constructions = spawn.room.find(FIND_MY_CONSTRUCTION_SITES);
     let source = spawn.room.find(FIND_SOURCES_ACTIVE)[0];
 
     let task = this.restoreTask(creep);
@@ -50,9 +49,10 @@ export default class TaskManager {
       if (request > 0) {
         request -= creep.store.getUsedCapacity(RESOURCE_ENERGY);
         task = new Hauling(creep, source, spawn);
-      } else if (constructions.length > 0) {
-        let construction = constructions[0];
-        constructions.shift();
+      } else if (this.constructionManager.hasWork()) {
+        let construction = this.constructionManager.registerWork(
+          creep.store.getCapacity(RESOURCE_ENERGY)
+        );
         task = new Building(creep, source, construction);
       } else {
         task = new Upgrading(creep, source, controller);
@@ -84,16 +84,20 @@ export default class TaskManager {
           Game.getObjectById(task.sink)
         );
       case 'Building':
-        if (Game.getObjectById(task.sink) != null) {
+        let construction = this.constructionManager.registerWork(
+          creep.store.getUsedCapacity(RESOURCE_ENERGY),
+          task.sink
+        );
+        if (construction != null) {
           return new Building(
             creep,
             Game.getObjectById(task.source) as Source,
-            Game.getObjectById(task.sink)
+            construction
           );
         } else {
           this.logger.warn('Construction not found for building task', creep);
+          return null;
         }
-        return null;
       case 'Upgrading':
         return new Upgrading(
           creep,

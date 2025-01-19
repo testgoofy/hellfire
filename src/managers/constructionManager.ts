@@ -25,16 +25,24 @@ export default class ConstructionManager {
     }
   }
 
+  public hasWork(): boolean {
+    let remainingAmount = 0;
+    for (let [id, amount] of this.constructionSites.entries()) {
+      if (amount > 0) {
+        remainingAmount += amount;
+      }
+    }
+    return remainingAmount > 0;
+  }
+
+  public registerWork(amount: number): ConstructionSite | null;
   public registerWork(amount: number, id: string): ConstructionSite | null;
   public registerWork(amount: number, id?: string): ConstructionSite | null {
     if (id) {
       // Register Work on a specific construction site
-      let remainingAmount = this.constructionSites.get(id);
-      if (remainingAmount && remainingAmount > 0) {
-        this.constructionSites.set(id, remainingAmount - amount);
-        return Game.getObjectById<ConstructionSite>(id);
-      }
-      return null;
+      let remainingAmount = this.constructionSites.get(id) as number;
+      this.constructionSites.set(id, remainingAmount - amount);
+      return Game.getObjectById<ConstructionSite>(id);
     } else {
       // Choose a construction site
       for (let [id, remainingAmount] of this.constructionSites.entries()) {

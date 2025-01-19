@@ -45,8 +45,6 @@ export default abstract class BaseTask {
         this.creep.moveTo(this.source, {
           visualizePathStyle: {stroke: '##ffaa00'},
         });
-      } else if (returnCode == OK) {
-        this.complete();
       }
     }
   }
@@ -63,7 +61,10 @@ export default abstract class BaseTask {
    * capacity in its store, set busy to true.
    */
   private update() {
-    if (this.creep.memory['busy'] && this.creep.store[RESOURCE_ENERGY] == 0) {
+    if (
+      this.creep.memory['busy'] &&
+      this.creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0
+    ) {
       // Creep is in the working state, but has no more energy
       // Creeps has successfully completed the task
       this.complete();
