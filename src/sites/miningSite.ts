@@ -43,6 +43,7 @@ export default class MiningSite {
       'Initializing mining site at (' + source.pos.x + ',' + source.pos.y + ')'
     );
 
+    // Find potential drop points
     let potentialDropPoints = _.filter(
       source.room.lookAtArea(
         source.pos.y - 1,
@@ -57,12 +58,12 @@ export default class MiningSite {
         (terrain.terrain == 'plain' || terrain.terrain == 'swamp')
     );
 
+    // Find closest drop point
     let bestDropPoint = potentialDropPoints[0];
     let bestDropPointDistance = source.pos.findPathTo(
       bestDropPoint.x,
       bestDropPoint.y
     ).length;
-
     for (let potentialDropPoint of potentialDropPoints) {
       let potentialDropPointDistance = source.pos.findPathTo(
         potentialDropPoint.x,
@@ -74,6 +75,7 @@ export default class MiningSite {
       }
     }
 
+    // Persist Memory
     this.initialized = true;
     Memory['sites'][this.poi.id] = {
       initialized: true,
@@ -82,6 +84,13 @@ export default class MiningSite {
         y: bestDropPoint.y,
       },
     };
+
+    // Build container at drop point
+    this.poi.room.createConstructionSite(
+      bestDropPoint.x,
+      bestDropPoint.y,
+      STRUCTURE_CONTAINER
+    );
   }
 
   public run() {
