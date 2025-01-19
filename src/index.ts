@@ -4,11 +4,12 @@ import TaskManager from './managers/taskManager';
 
 export function loop() {
   let logger = Logger.getInstance();
-  logger.setLevel(Logger.DEBUG);
+  logger.setLevel(Logger.INFO);
 
   // Memory Maintenance
   for (let creep in Memory.creeps) {
     if (!Game.creeps[creep]) {
+      logger.info('Deleting dead creep ' + creep);
       delete Memory.creeps[creep];
     }
   }
@@ -16,7 +17,9 @@ export function loop() {
   // Spawning
   if (Object.keys(Game.creeps).length < 3) {
     let name = 'Universal' + Game.time;
-    Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], name);
+    if (Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], name) == OK) {
+      logger.info('Spawning ' + name);
+    }
   }
 
   if (Game.spawns['Spawn1'].spawning) {
