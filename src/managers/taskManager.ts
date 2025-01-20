@@ -6,6 +6,7 @@ import Building from '../tasks/building';
 import Upgrading from '../tasks/upgrading';
 import Logger from '../logger';
 import {DEFAULT_PREFIX} from './spawningManager';
+import MiningSite from '../sites/miningSite';
 
 export default class TaskManager {
   private static instance: TaskManager;
@@ -121,6 +122,25 @@ export default class TaskManager {
   public run() {
     this.runUniversals(true);
     this.runUniversals(false);
+    this.runMiners();
+  }
+
+  private runMiners() {
+    let source = Game.spawns['Spawn1'].room.find(FIND_SOURCES_ACTIVE)[0];
+    let miningSite = new MiningSite(source);
+    let creeps = _.filter(Game.creeps, (creep: Creep) =>
+      creep.name.startsWith('Miner')
+    );
+
+    if (creeps.length > 0) {
+      for (let creep of creeps) {
+        if (!creep.pos.isEqualTo(miningSite.dropPoint)) {
+          creep.moveTo(miningSite.dropPoint);
+        } else {
+          creep.harvest(source);
+        }
+      }
+    }
   }
 
   private runUniversals(busy: boolean) {
