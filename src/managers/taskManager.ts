@@ -12,16 +12,16 @@ export default class TaskManager {
   private constructionManager: ConstructionManager;
   private logger: Logger;
 
-  public static getInstance(room: Room): TaskManager {
+  public static getInstance(): TaskManager {
     if (!TaskManager.instance) {
-      TaskManager.instance = new TaskManager(room);
+      TaskManager.instance = new TaskManager();
     }
 
     return TaskManager.instance;
   }
 
-  private constructor(room: Room) {
-    this.constructionManager = ConstructionManager.getInstance(room);
+  private constructor() {
+    this.constructionManager = ConstructionManager.getInstance();
     this.logger = Logger.getInstance();
   }
 

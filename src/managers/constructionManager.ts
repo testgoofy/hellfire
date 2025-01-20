@@ -1,3 +1,5 @@
+import Logger from '../logger';
+
 var _ = require('lodash');
 
 export default class ConstructionManager {
@@ -5,25 +7,17 @@ export default class ConstructionManager {
 
   /// Map of construction sites id and the remaining progress needed
   private constructionSites = new Map<string, number>();
+  private logger = Logger.getInstance();
 
-  public static getInstance(room: Room): ConstructionManager {
+  public static getInstance(): ConstructionManager {
     if (!ConstructionManager.instance) {
-      ConstructionManager.instance = new ConstructionManager(room);
+      ConstructionManager.instance = new ConstructionManager();
     }
 
     return ConstructionManager.instance;
   }
 
-  private constructor(room: Room) {
-    let constructions = room.find(FIND_MY_CONSTRUCTION_SITES);
-
-    for (let construction of constructions) {
-      this.constructionSites.set(
-        construction.id,
-        construction.progressTotal - construction.progress
-      );
-    }
-  }
+  private constructor() {}
 
   public hasWork(): boolean {
     let remainingAmount = 0;
@@ -33,6 +27,18 @@ export default class ConstructionManager {
       }
     }
     return remainingAmount > 0;
+  }
+
+  public initialize(room: Room) {
+    this.logger.trace('Initializing ConstructionManager');
+    let constructions = room.find(FIND_MY_CONSTRUCTION_SITES);
+
+    for (let construction of constructions) {
+      this.constructionSites.set(
+        construction.id,
+        construction.progressTotal - construction.progress
+      );
+    }
   }
 
   public registerWork(amount: number): ConstructionSite | null;
