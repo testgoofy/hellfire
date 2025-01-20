@@ -9,7 +9,6 @@ import Logger from '../logger';
 export default class TaskManager {
   private static instance: TaskManager;
 
-  private room: Room;
   private constructionManager: ConstructionManager;
   private logger: Logger;
 
@@ -22,7 +21,6 @@ export default class TaskManager {
   }
 
   private constructor(room: Room) {
-    this.room = room;
     this.constructionManager = ConstructionManager.getInstance(room);
     this.logger = Logger.getInstance();
   }
