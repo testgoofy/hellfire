@@ -1,4 +1,5 @@
 import Logger from '../logger';
+import MiningSite from '../sites/miningSite';
 
 export default abstract class BaseTask {
   protected logger = Logger.getInstance();
@@ -40,11 +41,10 @@ export default abstract class BaseTask {
       this.work();
     } else {
       // Harvesting
-      let returnCode = this.creep.harvest(this.source);
+      let miningSite = new MiningSite(this.source);
+      let returnCode = miningSite.harvest(this.creep);
       if (returnCode == ERR_NOT_IN_RANGE) {
-        this.creep.moveTo(this.source, {
-          visualizePathStyle: {stroke: '##ffaa00'},
-        });
+        miningSite.moveTo(this.creep);
       }
     }
   }

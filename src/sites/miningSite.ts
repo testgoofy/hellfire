@@ -4,6 +4,7 @@ import SpawningManager from '../managers/spawningManager';
 var _ = require('lodash');
 
 export default class MiningSite {
+  private container: StructureContainer | null = null;
   public dropPoint: RoomPosition;
   private logger = Logger.getInstance();
   private poi: Source;
@@ -37,6 +38,23 @@ export default class MiningSite {
       Memory['sites'][this.poi.id]['dropPoint']['y'],
       source.room.name
     );
+
+    // Get container
+    let structures = _.filter(
+      this.dropPoint.lookFor(LOOK_STRUCTURES),
+      (structure: Structure) => structure.structureType == STRUCTURE_CONTAINER
+    );
+    if (structures.length > 0) {
+      this.container = structures[0];
+    }
+  }
+
+  public harvest(creep: Creep) {
+    if (this.container) {
+      return creep.withdraw(this.container, RESOURCE_ENERGY);
+    } else {
+      return creep.harvest(this.poi);
+    }
   }
 
   private initialize(source: Source) {
@@ -94,9 +112,16 @@ export default class MiningSite {
     );
   }
 
+  public moveTo(creep: Creep) {
+    if (this.container) {
+      return creep.moveTo(this.container);
+    } else {
+      return creep.moveTo(this.poi);
+    }
+  }
+
   public run() {
-    let structures = this.dropPoint.lookFor(LOOK_STRUCTURES);
-    if (structures.length > 0) {
+    if (this.container) {
       let spawningManager = SpawningManager.getInstance();
       spawningManager.requestCreep('Miner', [MOVE, WORK, WORK]);
     }
