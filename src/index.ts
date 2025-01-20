@@ -1,5 +1,6 @@
 var _ = require('lodash');
 import Logger from './logger';
+import SpawningManager from './managers/spawningManager';
 import TaskManager from './managers/taskManager';
 import MiningSite from './sites/miningSite';
 
@@ -21,31 +22,9 @@ export function loop() {
   let logger = Logger.getInstance();
   logger.setLevel(Logger.INFO);
 
-  // Memory Maintenance
-  for (let creep in Memory.creeps) {
-    if (!Game.creeps[creep]) {
-      logger.info('Deleting dead creep ' + creep);
-      delete Memory.creeps[creep];
-    }
-  }
-
   // Spawning
-  if (Object.keys(Game.creeps).length < 3) {
-    let name = 'Universal' + Game.time;
-    if (Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], name) == OK) {
-      logger.info('Spawning ' + name);
-    }
-  }
-
-  if (Game.spawns['Spawn1'].spawning) {
-    let creep = Game.creeps[Game.spawns['Spawn1'].spawning.name];
-    Game.spawns['Spawn1'].room.visual.text(
-      '🛠️' + creep.name,
-      creep.pos.x,
-      creep.pos.y + 1,
-      {align: 'center', opacity: 0.8}
-    );
-  }
+  let spawningManager = SpawningManager.getInstance();
+  spawningManager.run();
 
   // Mining sites
   let site = new MiningSite(Game.spawns['Spawn1'].room.find(FIND_SOURCES)[0]);
