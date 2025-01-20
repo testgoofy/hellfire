@@ -62,8 +62,12 @@ export default class SpawningManager {
       }
     }
 
-    // Spawn requested creeps
-    if (Object.keys(Game.creeps).length < 3) {
+    // Spawn universal creeps
+    if (
+      _.filter(Object.keys(Game.creeps), (creep: string) =>
+        creep.startsWith(DEFAULT_PREFIX)
+      ).length < 3
+    ) {
       let name = DEFAULT_PREFIX + Game.time;
       if (Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, MOVE], name) == OK) {
         this.logger.info('Spawning ' + name);
