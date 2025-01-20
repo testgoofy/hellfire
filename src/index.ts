@@ -1,4 +1,3 @@
-var _ = require('lodash');
 import Logger from './logger';
 import SpawningManager from './managers/spawningManager';
 import TaskManager from './managers/taskManager';
@@ -22,16 +21,19 @@ export function loop() {
   let logger = Logger.getInstance();
   logger.setLevel(Logger.INFO);
 
-  // Spawning
+  // Instantiate managers
   let spawningManager = SpawningManager.getInstance();
-  spawningManager.run();
+  let taskManager = TaskManager.getInstance(Game.spawns['Spawn1'].room);
+
+  // Initialize managers
+  spawningManager.initialize();
 
   // Mining sites
   let site = new MiningSite(Game.spawns['Spawn1'].room.find(FIND_SOURCES)[0]);
   site.run();
 
-  // Commanding creeps
-  let taskManager = TaskManager.getInstance(Game.spawns['Spawn1'].room);
+  // Run managers
+  spawningManager.run();
   taskManager.run();
 
   // Try generating a pixel

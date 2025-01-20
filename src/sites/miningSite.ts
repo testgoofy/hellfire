@@ -1,4 +1,5 @@
 import Logger from '../logger';
+import SpawningManager from '../managers/spawningManager';
 
 var _ = require('lodash');
 
@@ -94,10 +95,10 @@ export default class MiningSite {
   }
 
   public run() {
-    new RoomVisual(this.dropPoint.roomName).circle(
-      this.dropPoint.x,
-      this.dropPoint.y,
-      {fill: 'transparent', stroke: 'green', opacity: 0.3}
-    );
+    let structures = this.dropPoint.lookFor(LOOK_STRUCTURES);
+    if (structures.length > 0) {
+      let spawningManager = SpawningManager.getInstance();
+      spawningManager.requestCreep('Miner', [MOVE, WORK, WORK]);
+    }
   }
 }
