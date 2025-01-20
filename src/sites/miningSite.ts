@@ -78,21 +78,8 @@ export default class MiningSite {
     );
 
     // Find closest drop point
-    let bestDropPoint = potentialDropPoints[0];
-    let bestDropPointDistance = source.pos.findPathTo(
-      bestDropPoint.x,
-      bestDropPoint.y
-    ).length;
-    for (let potentialDropPoint of potentialDropPoints) {
-      let potentialDropPointDistance = source.pos.findPathTo(
-        potentialDropPoint.x,
-        potentialDropPoint.y
-      ).length;
-      if (potentialDropPointDistance < bestDropPointDistance) {
-        bestDropPoint = potentialDropPoint;
-        bestDropPointDistance = potentialDropPointDistance;
-      }
-    }
+    let bestDropPoint = source.pos.findPathTo(Game.spawns['Spawn1'].pos)[0];
+    // let bestDropPoint = Game.spawns['Spawn1'].pos.findPathTo(source.pos)[-1];
 
     // Persist Memory
     this.initialized = true;
