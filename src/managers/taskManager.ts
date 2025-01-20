@@ -5,6 +5,7 @@ import Hauling from '../tasks/hauling';
 import Building from '../tasks/building';
 import Upgrading from '../tasks/upgrading';
 import Logger from '../logger';
+import {DEFAULT_PREFIX} from './spawningManager';
 
 export default class TaskManager {
   private static instance: TaskManager;
@@ -118,27 +119,30 @@ export default class TaskManager {
    */
 
   public run() {
-    let busyCreeps = _.filter(
-      Game.creeps,
-      (creep: Creep) => creep.memory['task'] != undefined
-    );
-    if (busyCreeps.length > 0) {
-      for (let creep of busyCreeps) {
-        let task = this.assignTask(creep);
-        task.run();
+    this.runUniversals(true);
+    this.runUniversals(false);
+  }
 
-        // Persist task, if not finished
-        if (task.active()) {
-          task.persist();
-        }
-      }
+  private runUniversals(busy: boolean) {
+    let creeps: Creep[];
+    if (busy) {
+      creeps = _.filter(
+        Game.creeps,
+        (creep: Creep) =>
+          creep.name.startsWith(DEFAULT_PREFIX) &&
+          creep.memory['task'] != undefined
+      );
+    } else {
+      creeps = _.filter(
+        Game.creeps,
+        (creep: Creep) =>
+          creep.name.startsWith(DEFAULT_PREFIX) &&
+          creep.memory['task'] == undefined
+      );
     }
-    let idleCreeps = _.filter(
-      Game.creeps,
-      (creep: Creep) => creep.memory['task'] == undefined
-    );
-    if (idleCreeps.length > 0) {
-      for (let creep of idleCreeps) {
+
+    if (creeps.length > 0) {
+      for (let creep of creeps) {
         let task = this.assignTask(creep);
         task.run();
 

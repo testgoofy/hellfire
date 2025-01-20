@@ -1,7 +1,7 @@
 var _ = require('lodash');
 import Logger from '../logger';
 
-const DEFAULT_PREFIX = 'Universal';
+export const DEFAULT_PREFIX = 'Universal';
 
 export default class SpawningManager {
   private static instance: SpawningManager;
